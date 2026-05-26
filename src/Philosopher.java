@@ -12,7 +12,6 @@ public class Philosopher implements Runnable {
     private int mealsEaten = 0;
 
 
-
     public Philosopher(int id, MainScene panel) {
         this.id = id;
         this.panel = panel;
@@ -29,31 +28,52 @@ public class Philosopher implements Runnable {
 
     @Override
     public void run() {
-        try {
-            while (true) {
+            try {
+                while (true) {
 
-                updateState("Thinking", Color.GREEN);
-                Thread.sleep(random.nextInt(5000));
-
-
-                int leftFork = id;
-                int rightFork = (id + 1) % NUM_PHILOSOPHERS;
+                    updateState("Thinking", Color.GREEN);
+                    Thread.sleep(random.nextInt(5000));
 
 
-                updateState("Waiting for 1st fork", Color.ORANGE);
+                    int leftFork = id;
+                    int rightFork = (id + 1) % panel.NUM_PHILOSOPHERS;
 
 
-                if (id == NUM_PHILOSOPHERS - 1) {
-                    pickUpFork(rightFork);
+                    updateState("Waiting for 1st fork", Color.ORANGE);
 
-                    updateState("Waiting for 2nd fork", Color.ORANGE);
-                    Thread.sleep(random.nextInt(1000));
-                    pickUpFork(leftFork);
-                } else {
-                    pickUpFork(leftFork);
-                    updateState("Waiting for 2nd fork", Color.ORANGE);
-                    Thread.sleep(random.nextInt(1000));
-                    pickUpFork(rightFork);
+
+                    if (id == panel.NUM_PHILOSOPHERS - 1) {
+
+                        panel.forks[rightFork].lock();
+
+                        updateState("Waiting for 2nd fork", Color.ORANGE);
+                        Thread.sleep(random.nextInt(1000));
+
+                        panel.forks[leftFork].lock();
+                    } else {
+
+                        panel.forks[leftFork].lock();
+
+                        updateState("Waiting for 2nd fork", Color.ORANGE);
+                        Thread.sleep(random.nextInt(1000));
+
+
+                        panel.forks[rightFork].lock();
+                    }
+
+
+                    mealsEaten++;
+
+                    updateState("Eating (" + mealsEaten + ")", Color.RED);
+                    Thread.sleep(random.nextInt(2000) + 1000);
+
+
+                    panel.forks[leftFork].unlock();
+                    panel.forks[rightFork].unlock();
                 }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+
     }
-}
