@@ -8,7 +8,7 @@ class MainScene extends JPanel {
     private final Philosopher[] philosophers = new Philosopher[NUM_PHILOSOPHERS];
     private final Lock[] forks = new ReentrantLock[NUM_PHILOSOPHERS];
 
-    // Массивы для хранения визуальных состояний, чтобы GUI мог их рисовать
+
     protected final String[] states = new String[NUM_PHILOSOPHERS];
     protected final Color[] philosopherColors = new Color[NUM_PHILOSOPHERS];
     private final Color[] forkColors = new Color[NUM_PHILOSOPHERS];
@@ -17,13 +17,13 @@ class MainScene extends JPanel {
     public MainScene() {
         setBackground(Color.WHITE);
 
-        // Инициализируем замки (вилки)
+
         for (int i = 0; i < NUM_PHILOSOPHERS; i++) {
             forks[i] = new ReentrantLock();
             forkColors[i] = Color.BLACK; // Свободная вилка — черная
         }
 
-        // Создаем и запускаем потоки философов
+
         for (int i = 0; i < NUM_PHILOSOPHERS; i++) {
             philosophers[i] = new Philosopher(i, this);
             new Thread(philosophers[i]).start();

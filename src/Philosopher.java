@@ -12,14 +12,14 @@ public class Philosopher implements Runnable {
     private int mealsEaten = 0;
 
 
-    // Конструктор (он у вас правильный)
+
     public Philosopher(int id, MainScene panel) {
         this.id = id;
         this.panel = panel;
         updateState("Thinking", Color.GREEN);
     }
 
-    // Вот этот метод updateState нужно полностью переписать вот так:
+
     private void updateState(String stateText, Color color) {
         panel.states[id] = stateText;
         panel.philosopherColors[id] = color;
