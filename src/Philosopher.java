@@ -29,7 +29,31 @@ public class Philosopher implements Runnable {
 
     @Override
     public void run() {
+        try {
+            while (true) {
+
+                updateState("Thinking", Color.GREEN);
+                Thread.sleep(random.nextInt(5000));
 
 
+                int leftFork = id;
+                int rightFork = (id + 1) % NUM_PHILOSOPHERS;
+
+
+                updateState("Waiting for 1st fork", Color.ORANGE);
+
+
+                if (id == NUM_PHILOSOPHERS - 1) {
+                    pickUpFork(rightFork);
+
+                    updateState("Waiting for 2nd fork", Color.ORANGE);
+                    Thread.sleep(random.nextInt(1000));
+                    pickUpFork(leftFork);
+                } else {
+                    pickUpFork(leftFork);
+                    updateState("Waiting for 2nd fork", Color.ORANGE);
+                    Thread.sleep(random.nextInt(1000));
+                    pickUpFork(rightFork);
+                }
     }
 }
