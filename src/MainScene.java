@@ -12,7 +12,7 @@ class MainScene extends JPanel {
     protected final String[] states = new String[NUM_PHILOSOPHERS];
     protected final Color[] philosopherColors = new Color[NUM_PHILOSOPHERS];
     private final Color[] forkColors = new Color[NUM_PHILOSOPHERS];
-    private final int[] eatCounters = new int[NUM_PHILOSOPHERS];
+    protected int[] eatCounters = new int [7];
 
     public MainScene() {
         setPreferredSize(new java.awt.Dimension(800, 600));
@@ -71,6 +71,23 @@ class MainScene extends JPanel {
             g2.setStroke(new BasicStroke(3)); // Толщина линии вилки
             g2.drawLine(fx1, fy1, fx2, fy2);
         }
-    }// конец конструктора
+    }
+    public int getForksCount() {
+        // Для обычного массива используем .length вместо .size()
+        return forks.length;
+    }
+
+    public void lockFork(int index) {
+        // Для обычного массива используем квадратные скобки [index] вместо .get(index)
+        forks[index].lock();
+        forkColors[index] = Color.BLUE;
+        repaint();
+    }
+
+    public void unlockFork(int index) {
+        forkColors[index] = Color.BLACK;
+        forks[index].unlock();
+        repaint();
+    }
     }
 
