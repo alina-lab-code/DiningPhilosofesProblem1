@@ -8,13 +8,16 @@ import java.util.Random;
 import java.awt.Color;
 import java.util.Random;
 
+import java.awt.Color;
+import java.util.Random;
+
 public class Philosopher implements Runnable {
     private final int id;
     private final MainScene panel;
     private final Random random = new Random();
     private int mealsEaten = 0;
 
-    // Флаг для безопасной остановки потока
+    // Флаг управления жизненным циклом потока
     private volatile boolean running = true;
 
     public Philosopher(int id, MainScene panel) {
@@ -23,16 +26,15 @@ public class Philosopher implements Runnable {
         updateState("Thinking", Color.GREEN);
     }
 
-    public int getId() {
-        return id;
-    }
-
     public void stopPhilosopher() {
         this.running = false;
     }
 
+    public void startPhilosopher() {
+        this.running = true;
+    }
+
     private void updateState(String stateText, Color color) {
-        // Проверяем границы массива на случай, если количество элементов изменилось
         if (id < panel.states.length) {
             panel.states[id] = stateText;
             panel.philosopherColors[id] = color;
@@ -50,16 +52,14 @@ public class Philosopher implements Runnable {
 
                 if (!running) break;
 
-                // Вычисляем вилки динамически на основе текущего размера списка в panel
+                // Определяем вилки на основе текущего динамического размера стола
                 int leftFork = id;
-                // Правая вилка — это следующая вилка по кругу
                 int totalForks = panel.getForksCount();
                 int rightFork = (id + 1) % totalForks;
 
                 updateState("Waiting for 1st fork", Color.ORANGE);
 
-                // Асимметричное решение проблемы взаимной блокировки (Deadlock)
-                // Если это последний философ в текущем кругу, он берет сначала правую вилку
+                // Предотвращение Deadlock через асимметрию для последнего за столом
                 if (id == totalForks - 1) {
                     panel.lockFork(rightFork);
                     updateState("Waiting for 2nd fork", Color.ORANGE);
@@ -72,8 +72,8 @@ public class Philosopher implements Runnable {
                     panel.lockFork(rightFork);
                 }
 
+                // Экстренный выход, если во время ожидания пришел сигнал остановки
                 if (!running) {
-                    // Если во время ожидания пришёл сигнал остановки, освобождаем вилки и выходим
                     panel.unlockFork(leftFork);
                     panel.unlockFork(rightFork);
                     break;
@@ -81,21 +81,21 @@ public class Philosopher implements Runnable {
 
                 // 2. Философ ест
                 mealsEaten++;
-                // Обновляем счётчик в панели (из задания: вывести сколько раз удалось поесть)
-                panel.eatCounters[id] = mealsEaten;
+                if (id < panel.eatCounters.length) {
+                    panel.eatCounters[id] = mealsEaten;
+                }
                 updateState("Eating (" + mealsEaten + ")", Color.RED);
                 Thread.sleep(random.nextInt(2000) + 1000);
 
-                // Освобождаем ресурсы
+                // Освобождение ресурсов
                 panel.unlockFork(leftFork);
                 panel.unlockFork(rightFork);
             }
 
-            // Состояние после остановки потока
+            // Отображение конечного состояния при остановке
             updateState("Stopped (" + mealsEaten + ")", Color.GRAY);
 
         } catch (InterruptedException e) {
-            // В случае прерывания освобождаем ресурсы, если они были захвачены
             Thread.currentThread().interrupt();
         }
     }
