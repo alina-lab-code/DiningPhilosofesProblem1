@@ -28,7 +28,7 @@ public class MainScene extends JPanel {
 
     protected final Lock[] forks = new ReentrantLock[MAX_PHILOSOPHERS];
 
-    // Массивы для графического отображения состояния (сделаны protected)
+
     protected final String[] states = new String[MAX_PHILOSOPHERS];
     protected final Color[] philosopherColors = new Color[MAX_PHILOSOPHERS];
     protected final Color[] forkColors = new Color[MAX_PHILOSOPHERS];
@@ -37,99 +37,99 @@ public class MainScene extends JPanel {
     public MainScene() {
         setPreferredSize(new java.awt.Dimension(800, 600));
         setBackground(Color.WHITE);
-        setLayout(new BorderLayout()); // Позволяет разместить панель управления сверху
+        setLayout(new BorderLayout());
 
-        // 1. Инициализируем базовые вилки (первые 5 штук)
+
         for (int i = 0; i < NUM_PHILOSOPHERS; i++) {
             forks[i] = new ReentrantLock();
-            forkColors[i] = Color.BLACK; // Черный цвет — вилка свободна
+            forkColors[i] = Color.BLACK;
         }
 
-        // 2. Создаем верхнюю панель с кнопками управления
+
         JPanel controlPanel = new JPanel();
         controlPanel.setBackground(new Color(235, 240, 245));
 
-        JButton btnStop = new JButton("Остановить философа");
-        JButton btnResume = new JButton("Возобновить философа");
-        JButton btnAdd = new JButton("Добавить философа (макс +2)");
+        JButton btnStop = new JButton("Stop Philosopher");
+        JButton btnResume = new JButton("Renew Philosopher");
+        JButton btnAdd = new JButton("Add Philosopher (max +2)");
 
         controlPanel.add(btnStop);
         controlPanel.add(btnResume);
         controlPanel.add(btnAdd);
         add(controlPanel, BorderLayout.NORTH);
 
-        // --- ЛОГИКА КНОПКИ «ОСТАНОВИТЬ» ---
+
         btnStop.addActionListener(e -> {
-            String input = JOptionPane.showInputDialog(this, "Введите ID философа для остановки (0 до " + (NUM_PHILOSOPHERS - 1) + "):");
+            String input = JOptionPane.showInputDialog(this, "Write philosopher ID from (0 to " + (NUM_PHILOSOPHERS - 1) + "):");
             try {
                 if (input != null) {
                     int id = Integer.parseInt(input.trim());
                     if (id >= 0 && id < NUM_PHILOSOPHERS) {
                         if (philosophers[id] != null) {
                             philosophers[id].stopPhilosopher();
-                            JOptionPane.showMessageDialog(this, "Сигнал остановки отправлен Философу " + id);
+                            JOptionPane.showMessageDialog(this, "Philosopher stopped " + id);
                         }
                     } else {
-                        JOptionPane.showMessageDialog(this, "Философа с таким ID не существует!");
+                        JOptionPane.showMessageDialog(this, "Philosopher does not exist!");
                     }
                 }
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Введите корректное число!");
+                JOptionPane.showMessageDialog(this, "Write a valid number!");
             }
         });
 
-        // --- ЛОГИКА КНОПКИ «ВОЗОБНОВИТЬ» ---
+
         btnResume.addActionListener(e -> {
-            String input = JOptionPane.showInputDialog(this, "Введите ID философа для возобновления (0 до " + (NUM_PHILOSOPHERS - 1) + "):");
+            String input = JOptionPane.showInputDialog(this, "Write an ID of philosopher to return to the table (0 to " + (NUM_PHILOSOPHERS - 1) + "):");
             try {
                 if (input != null) {
                     int id = Integer.parseInt(input.trim());
                     if (id >= 0 && id < NUM_PHILOSOPHERS) {
                         if (philosophers[id] != null) {
-                            // Если поток умер или еще не создавался, запускаем заново
+
                             if (threads[id] == null || !threads[id].isAlive()) {
-                                philosophers[id].startPhilosopher(); // Возвращаем running = true
-                                threads[id] = new Thread(philosophers[id]); // Создаем новый поток на том же объекте
+                                philosophers[id].startPhilosopher();
+                                threads[id] = new Thread(philosophers[id]);
                                 threads[id].start();
-                                JOptionPane.showMessageDialog(this, "Философ " + id + " возобновил работу!");
+                                JOptionPane.showMessageDialog(this, "Philosoph " + id + " returned to the table!");
                             } else {
-                                JOptionPane.showMessageDialog(this, "Философ " + id + " уже работает.");
+                                JOptionPane.showMessageDialog(this, "Philosoph " + id + " at the table now");
                             }
                         }
                     } else {
-                        JOptionPane.showMessageDialog(this, "Неверный ID!");
+                        JOptionPane.showMessageDialog(this, "Invalid ID!");
                     }
                 }
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Введите корректное число!");
+                JOptionPane.showMessageDialog(this, "Type a valid number!");
             }
         });
 
-        // --- ЛОГИКА КНОПКИ «ДОБАВИТЬ ФИЛОСОФА» ---
+
         btnAdd.addActionListener(e -> {
             if (NUM_PHILOSOPHERS >= MAX_PHILOSOPHERS) {
-                JOptionPane.showMessageDialog(this, "Достигнут лимит задания! Нельзя добавить больше 2 философов.");
+                JOptionPane.showMessageDialog(this, "Limit is reached.You can not add more philosophers!");
                 return;
             }
 
             int newId = NUM_PHILOSOPHERS;
 
-            // Инициализируем замок-вилку для нового участника
+
             forks[newId] = new ReentrantLock();
             forkColors[newId] = Color.BLACK;
 
-            // Создаем и запускаем философа
+
             philosophers[newId] = new Philosopher(newId, this);
             threads[newId] = new Thread(philosophers[newId]);
 
-            NUM_PHILOSOPHERS++; // Увеличиваем общий счетчик круга
+            NUM_PHILOSOPHERS++;
             threads[newId].start();
 
             repaint();
-            JOptionPane.showMessageDialog(this, "Успешно добавлен Философ " + newId + " и его правая вилка!");
+            JOptionPane.showMessageDialog(this, "Philosopher succsessfully added " + newId + " and his right fork too!");
         });
 
-        // 3. Первоначальный запуск первых 5 философов при старте программы
+
         for (int i = 0; i < NUM_PHILOSOPHERS; i++) {
             philosophers[i] = new Philosopher(i, this);
             threads[i] = new Thread(philosophers[i]);
@@ -137,19 +137,19 @@ public class MainScene extends JPanel {
         }
     }
 
-    // Методы взаимодействия с замками
+
     public int getForksCount() {
         return NUM_PHILOSOPHERS;
     }
 
     public void lockFork(int index) {
         forks[index].lock();
-        forkColors[index] = Color.BLUE; // Синий — вилка удерживается
+        forkColors[index] = Color.RED;
         repaint();
     }
 
     public void unlockFork(int index) {
-        forkColors[index] = Color.BLACK; // Черный — свободна
+        forkColors[index] = Color.GREEN;
         forks[index].unlock();
         repaint();
     }
@@ -161,32 +161,32 @@ public class MainScene extends JPanel {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         int centerX = getWidth() / 2;
-        int centerY = getHeight() / 2 + 20; // Небольшой сдвиг вниз из-за панели кнопок
+        int centerY = getHeight() / 2 + 20;
         int radius = 150;
 
         int numToDraw = NUM_PHILOSOPHERS;
 
         for (int i = 0; i < numToDraw; i++) {
-            // Динамический расчет углов под текущее количество философов за столом
+
             double angle = 2 * Math.PI * i / numToDraw;
             int x = centerX + (int) (radius * Math.cos(angle)) - 30;
             int y = centerY + (int) (radius * Math.sin(angle)) - 30;
 
-            // Отрисовка философа
+
             g2.setColor(philosopherColors[i] != null ? philosopherColors[i] : Color.GREEN);
             g2.fillOval(x, y, 60, 60);
             g2.setColor(Color.BLACK);
             g2.drawOval(x, y, 60, 60);
 
-            // Текстовые статусы
+
             g2.drawString("Philosopher " + i, x + 3, y - 22);
             String status = states[i] != null ? states[i] : "Thinking";
             g2.drawString(status, x - 5, y - 5);
 
-            // Вывод счетчика еды (Требование ТЗ!)
+
             g2.drawString("Meals: " + eatCounters[i], x + 5, y + 75);
 
-            // Динамический расчет и отрисовка положения вилок
+
             double forkAngle = 2 * Math.PI * (i - 0.5) / numToDraw;
             int fx1 = centerX + (int) ((radius - 40) * Math.cos(forkAngle));
             int fy1 = centerY + (int) ((radius - 40) * Math.sin(forkAngle));
